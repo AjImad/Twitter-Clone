@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tweet } from '../typings'
+import { Comment, Tweet } from '../typings'
 import TimeAgo from 'react-timeago'
 import {
     ChatAlt2Icon,
@@ -7,6 +7,8 @@ import {
     SwitchHorizontalIcon,
     UploadIcon,
 } from '@heroicons/react/outline'
+import { fetchComment } from '../utils/fetchComment'
+// import {Comment} from '../'
 
 interface Props {
     // text: string
@@ -17,6 +19,18 @@ interface Props {
 }
 
 function Tweet({ tweet }: Props) {
+
+    const [comments, setComments] = React.useState<Comment[]>([])
+
+    const refreshComments = async () => {
+        const comments: Comment[] = await fetchComment(tweet._id)
+        setComments(comments);
+    }
+
+    React.useEffect(() => {
+        refreshComments();
+    }, [])
+
     return (
         <div className='flex flex-col p-5 border-y border-gray-100'>
             <div className='flex space-x-3'>
@@ -55,6 +69,18 @@ function Tweet({ tweet }: Props) {
                     <UploadIcon className='flex h-5 w-5 items-center space-x-3' />
                 </div>
             </div>
+
+            {
+                comments?.length > 0 && (
+                    <div>
+                        {comments.map(comment => (
+                            <div key={comment._id}>
+                                <p>{comment.comment}</p>
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
         </div>
     )
 }
